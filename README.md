@@ -1,82 +1,121 @@
-FPL AI Team Optimizer ⚽🤖
-This project uses a machine learning model and linear optimization to automatically select the best possible Fantasy Premier League (FPL) squad.
+<div align="center">
 
-It analyzes player statistics, predicts future points using a pre-trained XGBoost model, and then constructs a 15-player squad that maximizes projected points while adhering to all of FPL's budget and team constraints.
+⚽ FPL AI-Powered Team Optimizer 🤖
+A sophisticated analytics tool that leverages machine learning and AI-driven insights to build your optimal Fantasy Premier League squad.
 
-Key Features
-Data-Driven Predictions: Uses an XGBoost model to forecast player points based on key performance metrics.
+</div>
 
-Optimal Squad Selection: Employs PuLP, a linear programming library, to build the highest-scoring squad possible.
+<p align="center">
+<img src="https://img.shields.io/badge/python-3.8%2B-blue" alt="Python Version">
+<img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+<img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status">
+</p>
 
-Constraint Adherence: The optimizer strictly follows FPL rules, including the £100m budget, player position quotas, and the 3-player-per-team limit.
+This project moves beyond simple statistics by integrating a predictive ML model, a mathematical optimizer, and qualitative AI scouting reports to provide a decisive edge in FPL team selection. It automates the complex decision-making process, allowing you to build a high-potential team with confidence.
 
-Fixture Analysis: Includes fixture data to implicitly factor in the difficulty of upcoming matches.
+✨ Key Features
+📊 Live Data Integration: Fetches real-time player data directly from the official FPL API, ensuring your team is based on the most current information.
 
-How It Works
-The project automates FPL team selection through a three-step pipeline:
+🔮 Predictive Analytics: Utilizes a pre-trained XGBoost model to accurately forecast expected points (xP) for every player in the league.
 
-Data Processing: It starts by cleaning and preparing player data from the provided CSV files (fpl_playerstats_*.csv and epl_player_stats_*.csv). This step ensures the data is ready for the prediction model.
+🤖 AI Scouting Reports: Integrates with Google's Gemini API to generate qualitative insights on player form, injury risks, and tactical roles.
 
-Point Prediction: The cleaned data is fed into a pre-trained XGBoost model (fpl_xgb_model.json). The model predicts the expected FPL points for every player in the league for the upcoming Gameweek.
+⚙️ Optimal Squad Generation: Employs the PuLP optimization library to construct the mathematically best 15-player squad within the £100m budget and all game rules.
 
-Team Optimization: With the player point predictions in hand, a linear programming model selects the optimal 15-player squad that maximizes the total score while satisfying all budget and team composition rules.
+📈 Fixture Difficulty Rating (FDR): Automatically calculates team-specific attacking and defensive strength to intelligently assess match difficulty.
 
-Tech Stack
-Python: The core language for scripting and logic.
+🔧 Manual Overrides: Provides dictionaries in main.py for you to apply your own "scout bias" to boost or penalize players based on your intuition.
 
-Pandas: Used for all data manipulation and preparation.
+🚀 System Workflow
+The project follows a clear, automated pipeline from data ingestion to final team selection:
 
-XGBoost: The machine learning library used for the predictive model.
+<div align="center">
 
-PuLP: The linear programming library used for squad optimization.
+Live FPL API Data → Data Processing & FDR Calculation → XGBoost Point Prediction → Gemini AI Scouting → PuLP Squad Optimization → Final Team Output
 
-Scikit-learn: A foundational machine learning library for Python.
+</div>
 
-How to Use This Project
-To run this project on your local machine, follow these steps:
+🛠️ Technology Stack
+Category
 
-Clone the repository:
+Technology
 
-Bash
+Core Language
 
-git clone <your-repository-url>
-cd <your-repository-directory>
-Install the required libraries:
+Python 3
 
-Bash
+Data Science
 
-pip install pandas xgboost pulp scikit-learn
-Update the data (Optional):
-Replace the .csv files in the main directory with the latest player and fixture data to get the most accurate predictions.
+Pandas, NumPy, Scikit-learn
 
-Run the main script:
+Machine Learning
 
-Bash
+XGBoost
+
+Optimization
+
+PuLP
+
+API & Web
+
+Requests, Google Generative AI, python-dotenv
+
+SETUP & USAGE
+1. Prerequisites
+Python 3.8+ and Git installed.
+
+A Google AI Studio API Key for the AI scouting feature.
+
+2. Installation Guide
+# Clone the repository
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows, use `.\venv\Scripts\activate`
+
+# Install the required dependencies
+pip install pandas numpy xgboost pulp requests scikit-learn python-dotenv google-generativeai
+
+3. Configuration
+Create a .env file in the project root and add your Gemini API key:
+
+GEMINI_API_KEY="YOUR_API_KEY_HERE"
+
+Before running, you can also modify the scout_overrides and player_team_overrides dictionaries at the top of main.py to apply your own custom logic.
+
+4. Running the Optimizer
+Execute the main script from your terminal:
 
 python main.py
-The script will output the optimized 15-player FPL squad to your console.
 
-Current Limitations
-This project is a powerful tool but has some key limitations:
+The script will output the final optimized Starting XI, Bench, and Captain to your console.
 
-Static Data: It relies on static CSV files. The model does not fetch live FPL data, so it cannot adapt to real-time price changes, injuries, or form fluctuations.
+📁 Project Structure
+.
+├── 📂 data/
+│   └── 📄 fpl_playerstats_*.csv
+├── 📄 .env
+├── 📄 .gitignore
+├── 📄 data_processing.py
+├── 📄 fixtures.py
+├── 📄 fpl_xgb_model.json
+├── 📄 main.py
+├── 📄 scout.py
+└── 📄 README.md
 
-No Long-Term Strategy: The optimizer focuses on selecting the best team for a single gameweek and does not account for long-term planning (e.g., future fixtures, double/blank gameweeks).
+🎯 Limitations & Future Roadmap
+Static Prediction Model: While the input data is live, the XGBoost model itself is static and does not re-train automatically as the season progresses.
 
-No Transfer or Captaincy Logic: The tool is designed for initial squad selection and does not suggest weekly transfers or recommend the optimal captain.
+Single Gameweek Focus: The optimization is performed for the immediate upcoming gameweek and lacks a long-term strategic view.
 
-Future Improvements
-Integrate the official FPL API to fetch live data automatically.
+Outdated Fixture List: The hardcoded fixtures.py file may need to be updated for the current season's schedule.
 
-Develop a multi-gameweek lookahead feature for better long-term planning.
+Future Enhancements:
 
-Add a module for recommending weekly transfers and captaincy choices.
+[ ] Implement a weekly model re-training pipeline.
 
-Implement model re-training to keep predictions accurate as the season progresses.
+[ ] Develop a multi-gameweek lookahead feature for strategic planning.
 
-
-
-
-
-
-
+[ ] Add a dedicated module for suggesting weekly transfers and captaincy.
