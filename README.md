@@ -7,7 +7,6 @@ This project goes beyond basic statistics — combining a **predictive ML model*
 
 <p align="center">
   <img src="https://img.shields.io/badge/python-3.8%2B-blue" alt="Python Version">
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
   <img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status">
 </p>
 
