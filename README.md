@@ -68,8 +68,8 @@ cd your-repo-name
 python -m venv venv
 source venv/bin/activate  # Windows: .\venv\Scripts\activate
 
-# Install dependencies
-pip install pandas numpy xgboost pulp requests scikit-learn python-dotenv google-generativeai
+# Install all dependencies
+pip install -r requirements.txt
 ```
 
 ---
@@ -106,7 +106,9 @@ The script outputs:
 ├── data/
 │   └── fpl_playerstats_*.csv
 ├── .env
+├── .gitattributes
 ├── .gitignore
+├── requirements.txt
 ├── data_processing.py
 ├── fixtures.py
 ├── fpl_xgb_model.json
@@ -132,5 +134,7 @@ The script outputs:
 - [ ] Weekly transfer & captaincy suggestion module.
 
 ---
+
+
 
 

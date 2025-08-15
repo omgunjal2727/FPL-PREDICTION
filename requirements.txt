@@ -1,0 +1,8 @@
+pandas
+numpy
+xgboost
+pulp
+requests
+scikit-learn
+python-dotenv
+google-generativeai
