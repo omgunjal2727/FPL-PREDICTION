@@ -104,17 +104,25 @@ The script outputs:
 ```
 .
 ├── data/
-│   └── fpl_playerstats_*.csv
+│   ├── epl_player_stats_24_25.csv
+│   ├── fpl_playerstats_2023-24.csv
+│   ├── fpl_playerstats_2024-25.csv
+│   └── fpl_xgb_model.json
+│
+├── scripts/
+│   ├── data_processing.py
+│   ├── fixtures.py
+│   ├── fpl_playerstats_2024-25.csv
+│   ├── model_trainer.py
+│   ├── optimized_main.py
+│   ├── scout.py
+│   └── scraping_script.py
+│
 ├── .env
 ├── .gitattributes
 ├── .gitignore
-├── requirements.txt
-├── data_processing.py
-├── fixtures.py
-├── fpl_xgb_model.json
-├── main.py
-├── scout.py
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 ---
@@ -134,7 +142,4 @@ The script outputs:
 - [ ] Weekly transfer & captaincy suggestion module.
 
 ---
-
-
-
 
