@@ -31,8 +31,9 @@ all_gameweek_fixtures = [
         'Fulham': 'Manchester United', 'Manchester United': 'Fulham',
         'Newcastle United': 'Liverpool', 'Liverpool': 'Newcastle United',
     },
-    # Gameweek 3 (Aug 30-31)
+    # Gameweek 3 (Aug 29-31)
     {
+        'Aston Villa': 'Crystal Palace', 'Crystal Palace': 'Aston Villa',
         'Chelsea': 'Fulham', 'Fulham': 'Chelsea',
         'Manchester United': 'Burnley', 'Burnley': 'Manchester United',
         'Sunderland': 'Brentford', 'Brentford': 'Sunderland',
@@ -42,7 +43,6 @@ all_gameweek_fixtures = [
         'Brighton & Hove Albion': 'Manchester City', 'Manchester City': 'Brighton & Hove Albion',
         'Nottingham Forest': 'West Ham United', 'West Ham United': 'Nottingham Forest',
         'Liverpool': 'Arsenal', 'Arsenal': 'Liverpool',
-        'Aston Villa': 'Crystal Palace', 'Crystal Palace': 'Aston Villa',
     },
     # Gameweek 4 (Sep 13-14)
     {
@@ -70,7 +70,7 @@ all_gameweek_fixtures = [
         'Sunderland': 'Aston Villa', 'Aston Villa': 'Sunderland',
         'Arsenal': 'Manchester City', 'Manchester City': 'Arsenal',
     },
-    # Gameweek 6 (Sep 27-28)
+    # Gameweek 6 (Sep 27-29)
     {
         'Brentford': 'Manchester United', 'Manchester United': 'Brentford',
         'Aston Villa': 'Fulham', 'Fulham': 'Aston Villa',
@@ -502,5 +502,5 @@ all_gameweek_fixtures = [
 ]
 
 # By default, we select Gameweek 1 for analysis.
-# To analyze a different gameweek, change the index (e.g., all_gameweek_fixtures[1] for GW2).
+# To analyze a different gameweek, change the index below (e.g., upcoming_fixtures = all_gameweek_fixtures[1] for Gameweek 2).
 upcoming_fixtures = all_gameweek_fixtures[0]

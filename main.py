@@ -26,6 +26,7 @@ scout_overrides = {
 # If you know a player has transferred but the API hasn't updated, correct it here.
 player_team_overrides = {
     'Luis Díaz': 'Bayern Munich', 
+    'Alexander Isak': 'Benched' # Added due to transfer saga
 }
 
 

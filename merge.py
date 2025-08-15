@@ -3,33 +3,45 @@ import numpy as np
 import xgboost as xgb
 from pulp import LpProblem, LpMaximize, LpVariable, lpSum, LpStatus
 
-# --- Functions from previous steps (collapsed for brevity) ---
 def clean_and_merge_fpl_data(fpl_23_24_path, fpl_24_25_path, epl_24_25_path):
-    # (This is the function from the previous step)
+    """
+    Cleans and merges FPL and EPL data from multiple CSV files.
+    """
+    print("Starting data cleaning and merging...")
     try:
         df_23_24_fpl = pd.read_csv(fpl_23_24_path, encoding='utf-8-sig')
         df_24_25_fpl = pd.read_csv(fpl_24_25_path, encoding='utf-8-sig')
         df_24_25_epl = pd.read_csv(epl_24_25_path, encoding='utf-8-sig')
-    except FileNotFoundError:
+    except FileNotFoundError as e:
+        print(f"Error loading data file: {e}")
         return None
+
     team_name_mapping = {
         'Arsenal': 'Arsenal', 'Aston Villa': 'Aston Villa', 'Bournemouth': 'Bournemouth',
-        'Brentford': 'Brentford', 'Brighton': 'Brighton & Hove Albion', 'Brighton & Hove Albion': 'Brighton & Hove Albion',
+        'Brentford': 'Brentford', 'Brighton': 'Brighton & Hove Albion',
         'Burnley': 'Burnley', 'Chelsea': 'Chelsea', 'Crystal Palace': 'Crystal Palace',
         'Everton': 'Everton', 'Fulham': 'Fulham', 'Ipswich': 'Ipswich Town',
-        'Ipswich Town': 'Ipswich Town', 'Leicester': 'Leicester City', 'Leicester City': 'Leicester City',
-        'Liverpool': 'Liverpool', 'Luton': 'Luton Town', 'Luton Town': 'Luton Town',
-        'Man City': 'Manchester City', 'Manchester City': 'Manchester City', 'Man Utd': 'Manchester United',
-        'Manchester United': 'Manchester United', 'Newcastle': 'Newcastle United', 'Newcastle United': 'Newcastle United',
-        'Nott\'m Forest': 'Nottingham Forest', 'Nottingham Forest': 'Nottingham Forest',
-        'Sheffield Utd': 'Sheffield United', 'Sheffield United': 'Sheffield United', 'Southampton': 'Southampton',
-        'Spurs': 'Tottenham Hotspur', 'Tottenham Hotspur': 'Tottenham Hotspur', 'West Ham': 'West Ham United',
-        'West Ham United': 'West Ham United', 'Wolves': 'Wolverhampton Wanderers', 'Wolverhampton Wanderers': 'Wolverhampton Wanderers'
+        'Leicester': 'Leicester City', 'Liverpool': 'Liverpool', 'Luton': 'Luton Town',
+        'Man City': 'Manchester City', 'Man Utd': 'Manchester United',
+        'Newcastle': 'Newcastle United', 'Nott\'m Forest': 'Nottingham Forest',
+        'Sheffield Utd': 'Sheffield United', 'Southampton': 'Southampton',
+        'Spurs': 'Tottenham Hotspur', 'West Ham': 'West Ham United',
+        'Wolves': 'Wolverhampton Wanderers',
+        # Ensuring full names map to themselves to avoid issues
+        'Brighton & Hove Albion': 'Brighton & Hove Albion',
+        'Ipswich Town': 'Ipswich Town', 'Leicester City': 'Leicester City',
+        'Luton Town': 'Luton Town', 'Manchester City': 'Manchester City',
+        'Manchester United': 'Manchester United', 'Newcastle United': 'Newcastle United',
+        'Nottingham Forest': 'Nottingham Forest', 'Sheffield United': 'Sheffield United',
+        'Tottenham Hotspur': 'Tottenham Hotspur', 'West Ham United': 'West Ham United',
+        'Wolverhampton Wanderers': 'Wolverhampton Wanderers'
     }
+
     df_24_25_fpl['player_name'] = df_24_25_fpl['first_name'] + ' ' + df_24_25_fpl['second_name']
     df_24_25_fpl['team_name'] = df_24_25_fpl['team_name'].map(team_name_mapping)
     df_24_25_fpl.rename(columns={'player_position': 'position', 'player_cost': 'cost'}, inplace=True)
     df_current_season = df_24_25_fpl[['id', 'player_name', 'team_name', 'position', 'cost', 'minutes', 'total_points', 'goals_scored', 'assists', 'clean_sheets', 'expected_goals', 'expected_assists', 'influence', 'creativity', 'threat']]
+
     df_23_24_fpl['team'] = df_23_24_fpl['team'].map(team_name_mapping)
     historical_cols = {
         'name': 'player_name', 'team': 'team_name', 'total_points': 'points_23_24',
@@ -38,15 +50,18 @@ def clean_and_merge_fpl_data(fpl_23_24_path, fpl_24_25_path, epl_24_25_path):
         'creativity': 'creativity_23_24', 'threat': 'threat_23_24'
     }
     df_historical = df_23_24_fpl[list(historical_cols.keys())].rename(columns=historical_cols)
+
     df_24_25_epl = df_24_25_epl.rename(columns={'Player Name': 'player_name', 'Club': 'team_name'})
     df_24_25_epl['team_name'] = df_24_25_epl['team_name'].map(team_name_mapping)
     for col in ['Conversion %', 'Passes%', 'Crosses %', 'fThird Passes %', 'gDuels %', 'aDuels %', 'Saves %']:
         if col in df_24_25_epl.columns:
             df_24_25_epl[col] = df_24_25_epl[col].astype(str).str.replace('%', '').astype(float)
+
     df_merged = pd.merge(df_current_season, df_historical, on=['player_name', 'team_name'], how='left')
     epl_cols_to_drop = ['Minutes', 'Goals', 'Assists', 'Clean Sheets', 'Yellow Cards', 'Red Cards', 'Saves', 'Penalties Saved']
     df_epl_subset = df_24_25_epl.drop(columns=[col for col in epl_cols_to_drop if col in df_24_25_epl.columns])
     df_final = pd.merge(df_merged, df_epl_subset, on=['player_name', 'team_name'], how='left')
+
     historical_nan_cols = [
         'points_23_24', 'minutes_23_24', 'xg_23_24', 'xa_23_24', 'bps_23_24',
         'bonus_23_24', 'influence_23_24', 'creativity_23_24', 'threat_23_24'
@@ -54,6 +69,8 @@ def clean_and_merge_fpl_data(fpl_23_24_path, fpl_24_25_path, epl_24_25_path):
     for col in historical_nan_cols:
         if col in df_final.columns:
             df_final[col] = df_final[col].fillna(0)
+    
+    print("Data cleaning and merging complete.")
     return df_final
 
 def engineer_features(df):
@@ -61,29 +78,18 @@ def engineer_features(df):
     Engineers new features for the FPL player dataset.
     """
     print("\nStarting feature engineering...")
-
-    # Fill NaN values in 'Appearances' before using it
     df['Appearances'] = df['Appearances'].fillna(0)
 
-    # --- 1. Per 90 Minute Stats ---
     minutes_played = df['minutes']
     df['points_per_90'] = (df['total_points'] / (minutes_played + 1e-6)) * 90
     df['xg_per_90'] = (df['expected_goals'] / (minutes_played + 1e-6)) * 90
     df['xa_per_90'] = (df['expected_assists'] / (minutes_played + 1e-6)) * 90
     df['xgi_per_90'] = df['xg_per_90'] + df['xa_per_90']
-
-    # --- 2. Value Metrics ---
     df['points_per_million'] = df['total_points'] / df['cost']
-    
-    # --- 3. Start Probability ---
-    # A simple proxy for how likely a player is to start.
-    max_games_played = df['Appearances'].max()
-    if max_games_played > 0:
-        df['start_probability'] = df['Appearances'] / max_games_played
-    else:
-        df['start_probability'] = 0
 
-    # --- 4. Team Strength Metrics ---
+    max_games_played = df['Appearances'].max()
+    df['start_probability'] = df['Appearances'] / max_games_played if max_games_played > 0 else 0
+
     team_stats = df.groupby('team_name').agg(
         team_xg=('expected_goals', 'sum'),
         team_goals_scored=('goals_scored', 'sum'),
@@ -96,13 +102,11 @@ def engineer_features(df):
     }, inplace=True)
     df = pd.merge(df, team_stats, on='team_name', how='left')
     
-    # --- 5. Historical Performance (per 90) ---
     minutes_23_24 = df['minutes_23_24']
     df['points_23_24_per_90'] = (df['points_23_24'] / (minutes_23_24 + 1e-6)) * 90
     df['xg_23_24_per_90'] = (df['xg_23_24'] / (minutes_23_24 + 1e-6)) * 90
     df['xa_23_24_per_90'] = (df['xa_23_24'] / (minutes_23_24 + 1e-6)) * 90
     
-    # --- 6. Positional Indicators ---
     df['is_gk'] = (df['position'] == 'GKP').astype(int)
     df['is_def'] = (df['position'] == 'DEF').astype(int)
     df['is_mid'] = (df['position'] == 'MID').astype(int)
@@ -114,10 +118,9 @@ def engineer_features(df):
 
 def train_and_predict(df):
     """
-    Trains an XGBoost model and predicts expected points (xP) for the next gameweek.
+    Trains an XGBoost model and predicts expected points (xP).
     """
     print("\nStarting model training and prediction...")
-
     features = [
         'cost', 'minutes', 'expected_goals', 'expected_assists',
         'influence', 'creativity', 'threat', 'points_23_24',
@@ -126,7 +129,7 @@ def train_and_predict(df):
         'points_per_million', 'team_attack_strength_xg',
         'team_defense_weakness_xgc', 'points_23_24_per_90',
         'xg_23_24_per_90', 'xa_23_24_per_90', 'is_gk', 'is_def',
-        'is_mid', 'is_fwd', 'start_probability' # Added new feature
+        'is_mid', 'is_fwd', 'start_probability'
     ]
     target = 'points_per_90'
     X = df[features]
@@ -137,8 +140,7 @@ def train_and_predict(df):
     print("Model training complete.")
 
     df['xP'] = xgbr.predict(X)
-    df['xP_per_match'] = (df['xP'] / 90) * 75
-    # NEW: Create a risk-adjusted xP based on start probability
+    df['xP_per_match'] = (df['xP'] / 90) * 75 
     df['risk_adjusted_xP'] = df['xP_per_match'] * df['start_probability']
 
     print("Prediction complete.")
@@ -146,7 +148,7 @@ def train_and_predict(df):
 
 def optimize_team(df, budget=100.0):
     """
-    Selects the optimal FPL squad and starting XI based on risk-adjusted predicted points.
+    Selects the optimal FPL squad and starting XI.
     """
     print("\nStarting team optimization...")
     players = df.to_dict('index')
@@ -157,11 +159,9 @@ def optimize_team(df, budget=100.0):
     is_starter = LpVariable.dicts("is_starter", players.keys(), cat='Binary')
     is_captain = LpVariable.dicts("is_captain", players.keys(), cat='Binary')
 
-    # UPDATED: Objective function now uses 'risk_adjusted_xP'
     prob += lpSum([players[i]['risk_adjusted_xP'] * is_starter[i] for i in players]) + \
             lpSum([players[i]['risk_adjusted_xP'] * is_captain[i] for i in players]), "Total_Risk_Adjusted_xP"
 
-    # --- Constraints (largely unchanged) ---
     prob += lpSum([players[i]['cost'] * in_squad[i] for i in players]) <= budget, "Budget"
     prob += lpSum([in_squad[i] for i in players]) == 15, "Squad_Size"
     prob += lpSum([players[i]['is_gk'] * in_squad[i] for i in players]) == 2, "Goalkeepers"
@@ -200,7 +200,6 @@ def optimize_team(df, budget=100.0):
         xi_df = pd.DataFrame(starting_xi).sort_values(by='position')
         bench_df = pd.DataFrame(bench).sort_values(by='position')
         
-        # UPDATED: Display 'risk_adjusted_xP'
         display_cols = ['player_name', 'team_name', 'position', 'cost', 'risk_adjusted_xP']
         print("\n--- Starting XI ---")
         print(xi_df[display_cols].to_string(index=False))
@@ -218,13 +217,14 @@ def optimize_team(df, budget=100.0):
         print(f"Predicted Points for Starting XI (with Captain): {total_predicted_points:.2f}")
 
 # --- Execute the full pipeline ---
-final_df = clean_and_merge_fpl_data(
-    'fpl_playerstats_2023-24.csv',
-    'fpl_playerstats_2024-25.csv',
-    'epl_player_stats_24_25.csv'
-)
+if __name__ == "__main__":
+    final_df = clean_and_merge_fpl_data(
+        'fpl_playerstats_2023-24.csv',
+        'fpl_playerstats_2024-25.csv',
+        'epl_player_stats_24_25.csv'
+    )
 
-if final_df is not None:
-    featured_df = engineer_features(final_df)
-    prediction_df = train_and_predict(featured_df)
-    optimize_team(prediction_df)
+    if final_df is not None:
+        featured_df = engineer_features(final_df)
+        prediction_df = train_and_predict(featured_df)
+        optimize_team(prediction_df)
