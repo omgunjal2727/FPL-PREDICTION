@@ -9,7 +9,7 @@ from fixtures import all_gameweek_fixtures
 
 # --- Configuration ---
 FPL_STATS_PATH = 'fpl_playerstats_2024-25.csv' # This should be your 25-26 data file
-MODEL_PATH = 'fpl_xgb_model.json'
+MODEL_PATH = 'C:/Users/OmG/OneDrive/ドキュメント/GitHub/FPL-PREDICTION/data/fpl_xgb_model.json'
 BUDGET = 100.0
 GAMEWEEK_TO_OPTIMIZE = 1 # Set which Gameweek to run (e.g., 1 for the first week)
 
